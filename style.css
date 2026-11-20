@@ -40,7 +40,6 @@ canvas {
     pointer-events: none;
 }
 
-/* Панель инвентаря внизу */ 
 #inventory {
     position: absolute;
     bottom: 20px;
