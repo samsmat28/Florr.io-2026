@@ -3,45 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>florr.io - Clicker</title>
+    <title>florr.io - One Person (Survival & Craft)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Логотип игры в стиле florr.io -->
     <div id="game-logo">florr.io</div>
 
+    <!-- Верхняя панель статистики -->
     <div id="ui">
-        Очки: <span id="score">0</span><br>
-        Сила клика: <span id="click-power">1</span>
+        Счет: <span id="score">0</span><br>
+        Здоровье: <span id="hp">100</span>/100
     </div>
 
-    <!-- Центральный смайлик/лицо -->
-    <div id="game-container">
-        <div id="target-face" onclick="clickFace(event)">
-            <div class="face-text" id="face-name">MN</div>
-            <div class="eyes">
-                <div class="eye"></div>
-                <div class="eye"></div>
-            </div>
-        </div>
+    <!-- Инвентарь и слоты крафта внизу -->
+    <div id="inventory">
+        <div class="slot" onclick="craftPetal(0)"><div class="slot-name">Basic</div><div class="count-badge" id="count-0">5</div></div>
+        <div class="slot" onclick="craftPetal(1)"><div class="slot-name">-</div><div class="count-badge" id="count-1">0</div></div>
+        <div class="slot" onclick="craftPetal(2)"><div class="slot-name">-</div><div class="count-badge" id="count-2">0</div></div>
+        <div class="slot" onclick="craftPetal(3)"><div class="slot-name">-</div><div class="count-badge" id="count-3">0</div></div>
+        <div class="slot" onclick="craftPetal(4)"><div class="slot-name">-</div><div class="count-badge" id="count-4">0</div></div>
     </div>
 
-    <!-- Магазин скинов -->
-    <div id="shop">
-        <h3>Магазин лиц</h3>
-        <div class="shop-item" onclick="buySkin('MN', 0, '#ff3b3b')">
-            <span>Базовый (MN)</span> — <b>Бесплатно</b>
-        </div>
-        <div class="shop-item" onclick="buySkin('Pro', 50, '#f1c40f')">
-            <span>Pro Лицо</span> — <b>50 очков</b>
-        </div>
-        <div class="shop-item" onclick="buySkin('God', 200, '#3498db')">
-            <span>Божество</span> — <b>200 очков</b>
-        </div>
-        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.2);">
-        <button onclick="upgradeClick()">Улучшить силу (+1)<br>Цена: <span id="upgrade-cost">20</span></button>
-    </div>
+    <canvas id="gameCanvas"></canvas>
 
     <script src="script.js"></script>
 </body>
