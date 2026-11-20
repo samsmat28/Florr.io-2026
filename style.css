@@ -1,0 +1,71 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #1a1a1a;
+    font-family: Arial, sans-serif;
+    color: white;
+    user-select: none;
+}
+canvas {
+    display: block;
+}
+#ui {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 10px 15px;
+    border-radius: 8px;
+    pointer-events: none;
+}
+#inventory {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 10px;
+}
+.slot {
+    width: 55px;
+    height: 55px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+}
+.slot:hover {
+    border-color: #4CAF50;
+}
+.petal-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+.rarity-common { background: #b0b0b0; color: black; }
+.rarity-unusual { background: #55ff55; color: black; }
+.rarity-rare { background: #5555ff; color: white; }
+
+.count-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 11px;
+    background: rgba(0,0,0,0.8);
+    padding: 1px 3px;
+    border-radius: 4px;
+}
