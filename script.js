@@ -8,7 +8,6 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Персонаж всегда строго по центру экрана
 let player = {
     x: window.innerWidth / 2,
     y: window.innerHeight / 2,
@@ -17,7 +16,6 @@ let player = {
     score: 0
 };
 
-// Обновляем центр при изменении размера окна
 window.addEventListener('resize', () => {
     player.x = canvas.width / 2;
     player.y = canvas.height / 2;
@@ -32,12 +30,13 @@ let petals = [
     { angle: (Math.PI * 8) / 5, distance: 65, width: 14, height: 24, rarity: 0 }
 ];
 
+// Инвентарь слотов (5 уровней редкости)
 let inventory = [
     { rarity: 0, count: 5, name: "Basic" },
-    { rarity: 1, count: 0, name: "-" },
-    { rarity: 2, count: 0, name: "-" },
-    { rarity: 3, count: 0, name: "-" },
-    { rarity: 4, count: 0, name: "-" }
+    { rarity: 1, count: 0, name: "Unusual" },
+    { rarity: 2, count: 0, name: "Rare" },
+    { rarity: 3, count: 0, name: "Epic" },
+    { rarity: 4, count: 0, name: "Legendary" }
 ];
 
 let mobs = [];
@@ -46,7 +45,7 @@ let drops = [];
 const rarityColors = ["#b0b0b0", "#55ff55", "#5555ff", "#aa00aa", "#ff8800"];
 const rarityNames = ["Basic", "Unusual", "Rare", "Epic", "Legendary"];
 
-// Спавн мобов со всех сторон экрана
+// Спавн мобов со всех сторон
 function spawnMob() {
     if (mobs.length < 7) {
         let angle = Math.random() * Math.PI * 2;
@@ -64,39 +63,33 @@ function spawnMob() {
 }
 setInterval(spawnMob, 2500);
 
-// Клик по луту на земле для подбора
+// Подбор лута с земли по клику
 window.addEventListener('click', (e) => {
     drops.forEach(drop => {
         let dx = e.clientX - drop.x;
         let dy = e.clientY - drop.y;
         if (Math.sqrt(dx * dx + dy * dy) < drop.radius + 15) {
             drop.collected = true;
-            for (let i = 0; i < inventory.length; i++) {
-                if (inventory[i].rarity === drop.rarity || inventory[i].count === 0) {
-                    inventory[i].rarity = drop.rarity;
-                    inventory[i].name = rarityNames[drop.rarity];
-                    inventory[i].count += 1;
-                    break;
-                }
-            }
+            // Добавляем в соответствующий слот инвентаря
+            let slot = inventory[drop.rarity];
+            slot.count += 1;
             updateInventoryUI();
         }
     });
 });
 
-// Крафт стол (5 одинаковых -> 1 выше)
+// Кнопка крафта (5 штук текущего уровня превращаются в 1 следующего)
 window.craftPetal = function(index) {
-    let item = inventory[index];
-    if (item.count >= 5 && index < 4) {
-        item.count -= 5;
-        if (item.count === 0) item.name = "-";
-        
-        let nextIndex = index + 1;
-        inventory[nextIndex].rarity = item.rarity + 1;
-        inventory[nextIndex].name = rarityNames[item.rarity + 1];
-        inventory[nextIndex].count += 1;
-        
+    if (index >= 4) return; // Последний уровень нельзя улучшить дальше
+    let currentItem = inventory[index];
+    let nextItem = inventory[index + 1];
+
+    if (currentItem.count >= 5) {
+        currentItem.count -= 5;
+        nextItem.count += 1;
         updateInventoryUI();
+    } else {
+        alert("Нужно минимум 5 лепестков этого уровня для крафта!");
     }
 };
 
@@ -106,22 +99,22 @@ function updateInventoryUI() {
         let countEl = document.getElementById(`count-${i}`);
         let slotEl = document.getElementById("inventory").children[i];
         
-        countEl.innerText = item.count > 0 ? item.count : "0";
-        slotEl.querySelector(".slot-name").innerText = item.count > 0 ? item.name : "-";
+        countEl.innerText = item.count;
+        slotEl.querySelector(".slot-name").innerText = item.name;
         
         if (item.count > 0) {
-            slotEl.style.borderColor = rarityColors[item.rarity];
+            slotEl.style.borderColor = rarityColors[i];
+            slotEl.style.opacity = "1";
         } else {
-            slotEl.style.borderColor = "rgba(255, 255, 255, 0.3)";
+            slotEl.style.borderColor = "rgba(255, 255, 255, 0.2)";
+            slotEl.style.opacity = "0.7";
         }
     }
 }
 
 function update() {
-    // Вращение лепестков вокруг центра
     petals.forEach(p => p.angle += 0.04);
 
-    // Движение мобов к центру (к игроку)
     mobs.forEach(mob => {
         let mdx = player.x - mob.x;
         let mdy = player.y - mob.y;
@@ -132,7 +125,6 @@ function update() {
             mob.y += (mdy / mdist) * mob.speed;
         }
 
-        // Урон игроку при касании
         if (mdist < player.radius + mob.radius) {
             player.hp -= 0.4;
             if (player.hp <= 0) {
@@ -141,10 +133,12 @@ function update() {
                 player.score = 0;
                 mobs = [];
                 drops = [];
+                // Сброс инвентаря
+                inventory.forEach((inv, idx) => inv.count = (idx === 0 ? 5 : 0));
+                updateInventoryUI();
             }
         }
 
-        // Урон от лепестков
         petals.forEach(p => {
             let px = player.x + Math.cos(p.angle) * p.distance;
             let py = player.y + Math.sin(p.angle) * p.distance;
@@ -241,7 +235,7 @@ function draw() {
         ctx.fillRect(mob.x - barW / 2, mob.y - mob.radius - 10, barW * (mob.hp / mob.maxHp), 4);
     });
 
-    // Игрок строго по центру
+    // Игрок по центру
     ctx.fillStyle = "#ff3b3b";
     ctx.beginPath();
     ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
