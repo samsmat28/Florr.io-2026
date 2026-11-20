@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>florr.io - One Person (Survival & Craft)</title>
+    <title>florr.io - Fan Survival</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,17 +16,19 @@
         Здоровье: <span id="hp">100</span>/100
     </div>
 
-    <!-- Инвентарь и слоты крафта внизу -->
+    <!-- Инвентарь лепестков внизу -->
     <div id="inventory">
         <div class="slot" onclick="craftPetal(0)"><div class="slot-name">Basic</div><div class="count-badge" id="count-0">5</div></div>
-        <div class="slot" onclick="craftPetal(1)"><div class="slot-name">-</div><div class="count-badge" id="count-1">0</div></div>
-        <div class="slot" onclick="craftPetal(2)"><div class="slot-name">-</div><div class="count-badge" id="count-2">0</div></div>
-        <div class="slot" onclick="craftPetal(3)"><div class="slot-name">-</div><div class="count-badge" id="count-3">0</div></div>
-        <div class="slot" onclick="craftPetal(4)"><div class="slot-name">-</div><div class="count-badge" id="count-4">0</div></div>
+        <div class="slot" onclick="craftPetal(1)"><div class="slot-name">Unusual</div><div class="count-badge" id="count-1">0</div></div>
+        <div class="slot" onclick="craftPetal(2)"><div class="slot-name">Rare</div><div class="count-badge" id="count-2">0</div></div>
+        <div class="slot" onclick="craftPetal(3)"><div class="slot-name">Epic</div><div class="count-badge" id="count-3">0</div></div>
+        <div class="slot" onclick="craftPetal(4)"><div class="slot-name">Legendary</div><div class="count-badge" id="count-4">0</div></div>
     </div>
 
     <canvas id="gameCanvas"></canvas>
 
+    <!-- Подключаем файл с данными, а затем основной скрипт -->
+    <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
