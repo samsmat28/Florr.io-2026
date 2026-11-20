@@ -25,11 +25,11 @@ let player = {
 
 // Лепестки игрока вокруг лица (5 штук по умолчанию)
 let petals = [
-    { angle: 0, distance: 55, radius: 14, rarity: 0 },
-    { angle: (Math.PI * 2) / 5, distance: 55, radius: 14, rarity: 0 },
-    { angle: (Math.PI * 4) / 5, distance: 55, radius: 14, rarity: 0 },
-    { angle: (Math.PI * 6) / 5, distance: 55, radius: 14, rarity: 0 },
-    { angle: (Math.PI * 8) / 5, distance: 55, radius: 14, rarity: 0 }
+    { angle: 0, distance: 60, width: 14, height: 24, rarity: 0 },
+    { angle: (Math.PI * 2) / 5, distance: 60, width: 14, height: 24, rarity: 0 },
+    { angle: (Math.PI * 4) / 5, distance: 60, width: 14, height: 24, rarity: 0 },
+    { angle: (Math.PI * 6) / 5, distance: 60, width: 14, height: 24, rarity: 0 },
+    { angle: (Math.PI * 8) / 5, distance: 60, width: 14, height: 24, rarity: 0 }
 ];
 
 // Инвентарь лепестков
@@ -44,6 +44,7 @@ let inventory = [
 let mobs = [];
 let drops = []; // Лут на земле
 
+// Цвета редкостей (Common, Unusual, Rare, Epic, Legendary)
 const rarityColors = ["#b0b0b0", "#55ff55", "#5555ff", "#aa00aa", "#ff8800"];
 const rarityNames = ["Basic", "Unusual", "Rare", "Epic", "Legendary"];
 
@@ -150,12 +151,13 @@ function update() {
             }
         }
 
+        // Проверка столкновения каплевидных лепестков с мобами
         petals.forEach(p => {
             let px = player.x + Math.cos(p.angle) * p.distance;
             let py = player.y + Math.sin(p.angle) * p.distance;
             let pdx = mob.x - px;
             let pdy = mob.y - py;
-            if (Math.sqrt(pdx * pdx + pdy * pdy) < p.radius + mob.radius) {
+            if (Math.sqrt(pdx * pdx + pdy * pdy) < p.width + mob.radius - 5) {
                 mob.hp -= 8;
                 if (mob.hp <= 0) {
                     mob.dead = true;
@@ -189,10 +191,39 @@ function update() {
     document.getElementById("hp").innerText = Math.max(0, Math.floor(player.hp));
 }
 
+// Функция для рисования каплевидного лепестка в стиле florr.io
+function drawPetal(x, y, angle, rarity, width, height) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle + Math.PI / 2); // Поворачиваем по направлению движения
+
+    ctx.fillStyle = rarityColors[rarity];
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2.5;
+
+    // Рисуем каплевидную форму лепестка
+    ctx.beginPath();
+    ctx.moveTo(0, -height);
+    ctx.bezierCurveTo(width, -height / 2, width, height / 2, 0, height);
+    ctx.bezierCurveTo(-width, height / 2, -width, -height / 2, 0, -height);
+    ctx.closePath();
+
+    ctx.fill();
+    ctx.stroke();
+
+    // Небольшой внутренний блик (текстура объема)
+    ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+    ctx.beginPath();
+    ctx.arc(0, -height / 3, width / 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+}
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Лут на земле
+    // Лут на земле (красивые капли-лепестки)
     drops.forEach(drop => {
         ctx.fillStyle = rarityColors[drop.rarity];
         ctx.beginPath();
@@ -242,18 +273,11 @@ function draw() {
     ctx.arc(player.x + 9, player.y - 4, 1.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // Лепестки вокруг игрока
+    // Отрисовка каплевидных лепестков вокруг игрока
     petals.forEach(p => {
         let px = player.x + Math.cos(p.angle) * p.distance;
         let py = player.y + Math.sin(p.angle) * p.distance;
-
-        ctx.fillStyle = rarityColors[p.rarity];
-        ctx.beginPath();
-        ctx.arc(px, py, p.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "#fff";
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        drawPetal(px, py, p.angle, p.rarity, p.width, p.height);
     });
 }
 
