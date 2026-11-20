@@ -8,6 +8,7 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
+// Игрок (лицо MN) строго по центру экрана, никуда не двигается за мышкой
 let player = {
     x: window.innerWidth / 2,
     y: window.innerHeight / 2,
@@ -21,7 +22,7 @@ window.addEventListener('resize', () => {
     player.y = canvas.height / 2;
 });
 
-// Лепестки игрока вокруг лица (5 штук по умолчанию)
+// Лепестки вокруг игрока (5 штук Basic)
 let petals = [
     { angle: 0, distance: 65, width: 14, height: 24, rarity: 0 },
     { angle: (Math.PI * 2) / 5, distance: 65, width: 14, height: 24, rarity: 0 },
@@ -30,7 +31,7 @@ let petals = [
     { angle: (Math.PI * 8) / 5, distance: 65, width: 14, height: 24, rarity: 0 }
 ];
 
-// Инвентарь слотов (5 уровней редкости)
+// Инвентарь и крафт (5 уровней)
 let inventory = [
     { rarity: 0, count: 5, name: "Basic" },
     { rarity: 1, count: 0, name: "Unusual" },
@@ -45,32 +46,31 @@ let drops = [];
 const rarityColors = ["#b0b0b0", "#55ff55", "#5555ff", "#aa00aa", "#ff8800"];
 const rarityNames = ["Basic", "Unusual", "Rare", "Epic", "Legendary"];
 
-// Спавн мобов со всех сторон
+// Спавн мобов (пчел из Garden) со всех сторон
 function spawnMob() {
-    if (mobs.length < 7) {
+    if (mobs.length < 6) {
         let angle = Math.random() * Math.PI * 2;
         let distance = Math.max(canvas.width, canvas.height) / 2 + 100;
         mobs.push({
             x: player.x + Math.cos(angle) * distance,
             y: player.y + Math.sin(angle) * distance,
-            radius: 18,
+            radius: 22,
             hp: 25,
             maxHp: 25,
-            speed: 1.2,
-            color: "#e74c3c"
+            speed: 1.1,
+            type: "bee" // Пчела с полосками
         });
     }
 }
-setInterval(spawnMob, 2500);
+setInterval(spawnMob, 3000);
 
-// Подбор лута с земли по клику
+// Клик по луту на земле для подбора
 window.addEventListener('click', (e) => {
     drops.forEach(drop => {
         let dx = e.clientX - drop.x;
         let dy = e.clientY - drop.y;
         if (Math.sqrt(dx * dx + dy * dy) < drop.radius + 15) {
             drop.collected = true;
-            // Добавляем в соответствующий слот инвентаря
             let slot = inventory[drop.rarity];
             slot.count += 1;
             updateInventoryUI();
@@ -78,9 +78,9 @@ window.addEventListener('click', (e) => {
     });
 });
 
-// Кнопка крафта (5 штук текущего уровня превращаются в 1 следующего)
+// Крафт стол (5 одинаковых -> 1 выше)
 window.craftPetal = function(index) {
-    if (index >= 4) return; // Последний уровень нельзя улучшить дальше
+    if (index >= 4) return;
     let currentItem = inventory[index];
     let nextItem = inventory[index + 1];
 
@@ -113,8 +113,10 @@ function updateInventoryUI() {
 }
 
 function update() {
+    // Вращение лепестков вокруг центра
     petals.forEach(p => p.angle += 0.04);
 
+    // Движение мобов к игроку
     mobs.forEach(mob => {
         let mdx = player.x - mob.x;
         let mdy = player.y - mob.y;
@@ -125,20 +127,21 @@ function update() {
             mob.y += (mdy / mdist) * mob.speed;
         }
 
+        // Урон игроку
         if (mdist < player.radius + mob.radius) {
-            player.hp -= 0.4;
+            player.hp -= 0.3;
             if (player.hp <= 0) {
                 alert("Игра окончена! Счет: " + player.score);
                 player.hp = 100;
                 player.score = 0;
                 mobs = [];
                 drops = [];
-                // Сброс инвентаря
                 inventory.forEach((inv, idx) => inv.count = (idx === 0 ? 5 : 0));
                 updateInventoryUI();
             }
         }
 
+        // Урон от лепестков
         petals.forEach(p => {
             let px = player.x + Math.cos(p.angle) * p.distance;
             let py = player.y + Math.sin(p.angle) * p.distance;
@@ -178,6 +181,7 @@ function update() {
     document.getElementById("hp").innerText = Math.max(0, Math.floor(player.hp));
 }
 
+// Отрисовка каплевидного лепестка
 function drawPetal(x, y, angle, rarity, width, height) {
     ctx.save();
     ctx.translate(x, y);
@@ -218,16 +222,28 @@ function draw() {
         ctx.stroke();
     });
 
-    // Мобы
-    mobs.forEach(mob => {
-        ctx.fillStyle = mob.color;
+    // Рисуем мобов (пчел с полосками как на скрипне)
+    mobs.жцы = mobs.forEach(mob => {
+        ctx.save();
+        ctx.translate(mob.x, mob.y);
+        
+        // Тело пчелы (желтое в черную полоску)
+        ctx.fillStyle = "#f1c40f";
         ctx.beginPath();
-        ctx.arc(mob.x, mob.y, mob.radius, 0, Math.PI * 2);
+        ctx.arc(0, 0, mob.radius, 0, Math.PI * 2);
         ctx.fill();
-        ctx.strokeStyle = "#fff";
+        ctx.strokeStyle = "#000";
         ctx.lineWidth = 2;
         ctx.stroke();
 
+        // Черные полоски пчелы
+        ctx.fillStyle = "#000";
+        ctx.fillRect(-mob.radius * 0.6, -4, mob.radius * 1.2, 4);
+        ctx.fillRect(-mob.radius * 0.4, 4, mob.radius * 0.8, 4);
+
+        ctx.restore();
+
+        // Полоска здоровья моба
         let barW = mob.radius * 2;
         ctx.fillStyle = "rgba(0,0,0,0.5)";
         ctx.fillRect(mob.x - barW / 2, mob.y - mob.radius - 10, barW, 4);
@@ -235,7 +251,7 @@ function draw() {
         ctx.fillRect(mob.x - barW / 2, mob.y - mob.radius - 10, barW * (mob.hp / mob.maxHp), 4);
     });
 
-    // Игрок по центру
+    // Игрок по центру (лицо MN с надписью)
     ctx.fillStyle = "#ff3b3b";
     ctx.beginPath();
     ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
@@ -256,6 +272,12 @@ function draw() {
     ctx.arc(player.x - 10, player.y - 5, 2, 0, Math.PI * 2);
     ctx.arc(player.x + 10, player.y - 5, 2, 0, Math.PI * 2);
     ctx.fill();
+
+    // Текст "MN" прямо на лице
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 14px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("MN", player.x, player.y + 22);
 
     // Лепестки
     petals.forEach(p => {
