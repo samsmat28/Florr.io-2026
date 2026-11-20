@@ -3,25 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Florr.io - One Person</title>
+    <title>Florr.io Clicker - MN</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="ui">
-        Счет: <span id="score">0</span><br>
-        Здоровье: <span id="hp">100</span>/100
+        Очки (Пыльца): <span id="score">0</span><br>
+        Сила клика: <span id="click-power">1</span>
     </div>
 
-    <div id="inventory">
-        <div class="slot" onclick="craftPetal(0)"><div class="count-badge" id="count-0">0</div></div>
-        <div class="slot" onclick="craftPetal(1)"><div class="count-badge" id="count-1">0</div></div>
-        <div class="slot" onclick="craftPetal(2)"><div class="count-badge" id="count-2">0</div></div>
-        <div class="slot" onclick="craftPetal(3)"><div class="count-badge" id="count-3">0</div></div>
-        <div class="slot" onclick="craftPetal(4)"><div class="count-badge" id="count-4">0</div></div>
+    <!-- Центральный смайлик/лицо для кликов -->
+    <div id="game-container">
+        <div id="target-face" onclick="clickFace()">
+            <div class="face-text" id="face-name">MN</div>
+            <div class="eyes">
+                <div class="eye"></div>
+                <div class="eye"></div>
+            </div>
+        </div>
     </div>
 
-    <canvas id="gameCanvas"></canvas>
+    <!-- Магазин скинов и улучшений -->
+    <div id="shop">
+        <h3>Магазин лиц</h3>
+        <div class="shop-item" onclick="buySkin('MN', 0, '#ff3b3b')">
+            <span>Базовый (MN)</span> — <b>Бесплатно</b>
+        </div>
+        <div class="shop-item" onclick="buySkin('Pro', 50, '#ffcc00')">
+            <span>Pro Лицо</span> — <b>50 очков</b>
+        </div>
+        <div class="shop-item" onclick="buySkin('God', 200, '#5555ff')">
+            <span>Божество</span> — <b>200 очков</b>
+        </div>
+        <hr>
+        <button onclick="upgradeClick()">Улучшить клик (+1 к силе) - Цена: <span id="upgrade-cost">20</span></button>
+    </div>
 
     <script src="script.js"></script>
 </body>
