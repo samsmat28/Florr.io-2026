@@ -1,17 +1,12 @@
 let score = 0;
 let clickPower = 1;
 let upgradeCost = 20;
-let currentSkinColor = "#ff3b3b";
-let currentName = "MN";
 
 function clickFace(event) {
     score += clickPower;
     updateUI();
-    
-    // Создаем эффект всплывающего числа в месте клика
     createFloatingText(event);
 
-    // Эффект отскока лица
     let face = document.getElementById("target-face");
     face.style.transform = "scale(0.85)";
     setTimeout(() => {
@@ -25,7 +20,6 @@ function createFloatingText(event) {
     floatEl.className = "floating-text";
     floatEl.innerText = "+" + clickPower;
 
-    // Рандомное смещение чтобы цифры не летели строго в одну точку
     let randomX = (Math.random() - 0.5) * 60;
     let randomY = (Math.random() - 0.5) * 40;
 
@@ -34,7 +28,6 @@ function createFloatingText(event) {
 
     container.appendChild(floatEl);
 
-    // Удаляем элемент после завершения анимации
     setTimeout(() => {
         floatEl.remove();
     }, 600);
@@ -43,13 +36,9 @@ function createFloatingText(event) {
 function buySkin(name, price, color) {
     if (score >= price) {
         score -= price;
-        currentName = name;
-        currentSkinColor = color;
-        
-        document.getElementById("face-name").innerText = currentName;
-        document.getElementById("target-face").style.backgroundColor = currentSkinColor;
-        document.getElementById("target-face").style.boxShadow = `0 0 35px ${color}`;
-        
+        document.getElementById("face-name").innerText = name;
+        document.getElementById("target-face").style.backgroundColor = color;
+        document.getElementById("target-face").style.boxShadow = `0 8px 25px ${color}`;
         updateUI();
     } else {
         alert("Не хватает очков!");
