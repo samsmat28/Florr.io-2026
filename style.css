@@ -1,71 +1,129 @@
 body {
     margin: 0;
-    overflow: hidden;
+    height: 100vh;
     background-color: #1a1a1a;
     font-family: Arial, sans-serif;
     color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
     user-select: none;
 }
-canvas {
-    display: block;
-}
+
 #ui {
     position: absolute;
     top: 20px;
     left: 20px;
-    font-size: 20px;
+    font-size: 22px;
     background: rgba(0, 0, 0, 0.6);
-    padding: 10px 15px;
-    border-radius: 8px;
-    pointer-events: none;
-}
-#inventory {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 10px;
+    padding: 15px;
     border-radius: 10px;
 }
-.slot {
-    width: 55px;
-    height: 55px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 8px;
+
+/* Центральный контейнер */
+#game-container {
     display: flex;
-    align-items: center;
     justify-content: center;
-    position: relative;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: bold;
+    align-items: center;
 }
-.slot:hover {
-    border-color: #4CAF50;
-}
-.petal-icon {
-    width: 35px;
-    height: 35px;
+
+/* Смайлик (лицо) по центру */
+#target-face {
+    width: 150px;
+    height: 150px;
+    background-color: #ff3b3b;
+    border: 5px solid #ffffff;
     border-radius: 50%;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
-    font-size: 10px;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(255, 59, 59, 0.5);
+    transition: transform 0.05s ease;
+    position: relative;
 }
-.rarity-common { background: #b0b0b0; color: black; }
-.rarity-unusual { background: #55ff55; color: black; }
-.rarity-rare { background: #5555ff; color: white; }
 
-.count-badge {
+#target-face:active {
+    transform: scale(0.92); /* Анимация нажатия */
+}
+
+.face-text {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #fff;
+    text-shadow: 2px 2px 0px #000;
+}
+
+.eyes {
+    display: flex;
+    gap: 20px;
+}
+
+.eye {
+    width: 16px;
+    height: 16px;
+    background-color: #fff;
+    border-radius: 50%;
+    position: relative;
+}
+
+.eye::after {
+    content: '';
     position: absolute;
-    bottom: 2px;
-    right: 4px;
-    font-size: 11px;
-    background: rgba(0,0,0,0.8);
-    padding: 1px 3px;
-    border-radius: 4px;
+    width: 6px;
+    height: 6px;
+    background-color: #000;
+    border-radius: 50%;
+    top: 5px;
+    left: 5px;
+}
+
+/* Магазин справа */
+#shop {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 260px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#shop h3 {
+    margin-top: 0;
+    text-align: center;
+}
+
+.shop-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.shop-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+#shop button {
+    width: 100%;
+    padding: 10px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+#shop button:hover {
+    background: #45a049;
 }
