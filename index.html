@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Florr.io Clicker - MN</title>
+    <title>florr.io - Clicker</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- Логотип игры в стиле florr.io -->
+    <div id="game-logo">florr.io</div>
+
     <div id="ui">
-        Очки (Пыльца): <span id="score">0</span><br>
+        Очки: <span id="score">0</span><br>
         Сила клика: <span id="click-power">1</span>
     </div>
 
-    <!-- Центральный смайлик/лицо для кликов -->
+    <!-- Центральный смайлик/лицо -->
     <div id="game-container">
-        <div id="target-face" onclick="clickFace()">
+        <div id="target-face" onclick="clickFace(event)">
             <div class="face-text" id="face-name">MN</div>
             <div class="eyes">
                 <div class="eye"></div>
@@ -24,20 +27,20 @@
         </div>
     </div>
 
-    <!-- Магазин скинов и улучшений -->
+    <!-- Магазин скинов -->
     <div id="shop">
         <h3>Магазин лиц</h3>
         <div class="shop-item" onclick="buySkin('MN', 0, '#ff3b3b')">
             <span>Базовый (MN)</span> — <b>Бесплатно</b>
         </div>
-        <div class="shop-item" onclick="buySkin('Pro', 50, '#ffcc00')">
+        <div class="shop-item" onclick="buySkin('Pro', 50, '#f1c40f')">
             <span>Pro Лицо</span> — <b>50 очков</b>
         </div>
-        <div class="shop-item" onclick="buySkin('God', 200, '#5555ff')">
+        <div class="shop-item" onclick="buySkin('God', 200, '#3498db')">
             <span>Божество</span> — <b>200 очков</b>
         </div>
-        <hr>
-        <button onclick="upgradeClick()">Улучшить клик (+1 к силе) - Цена: <span id="upgrade-cost">20</span></button>
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.2);">
+        <button onclick="upgradeClick()">Улучшить силу (+1)<br>Цена: <span id="upgrade-cost">20</span></button>
     </div>
 
     <script src="script.js"></script>
