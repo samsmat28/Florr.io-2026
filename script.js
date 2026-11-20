@@ -1,63 +1,260 @@
-let score = 0;
-let clickPower = 1;
-let upgradeCost = 20;
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-function clickFace(event) {
-    score += clickPower;
-    updateUI();
-    createFloatingText(event);
-
-    let face = document.getElementById("target-face");
-    face.style.transform = "scale(0.85)";
-    setTimeout(() => {
-        face.style.transform = "scale(1)";
-    }, 50);
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
+window.addEventListener('resize', resize);
+resize();
 
-function createFloatingText(event) {
-    let container = document.getElementById("game-container");
-    let floatEl = document.createElement("div");
-    floatEl.className = "floating-text";
-    floatEl.innerText = "+" + clickPower;
+let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
 
-    let randomX = (Math.random() - 0.5) * 60;
-    let randomY = (Math.random() - 0.5) * 40;
+let player = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    radius: 30,
+    speed: 3,
+    hp: 100,
+    score: 0
+};
 
-    floatEl.style.left = (container.offsetWidth / 2 + randomX) + "px";
-    floatEl.style.top = (container.offsetHeight / 2 + randomY) + "px";
+// Лепестки игрока вокруг лица (5 штук по умолчанию)
+let petals = [
+    { angle: 0, distance: 55, radius: 14, rarity: 0 },
+    { angle: (Math.PI * 2) / 5, distance: 55, radius: 14, rarity: 0 },
+    { angle: (Math.PI * 4) / 5, distance: 55, radius: 14, rarity: 0 },
+    { angle: (Math.PI * 6) / 5, distance: 55, radius: 14, rarity: 0 },
+    { angle: (Math.PI * 8) / 5, distance: 55, radius: 14, rarity: 0 }
+];
 
-    container.appendChild(floatEl);
+// Инвентарь лепестков
+let inventory = [
+    { rarity: 0, count: 5, name: "Basic" },
+    { rarity: 1, count: 0, name: "-" },
+    { rarity: 2, count: 0, name: "-" },
+    { rarity: 3, count: 0, name: "-" },
+    { rarity: 4, count: 0, name: "-" }
+];
 
-    setTimeout(() => {
-        floatEl.remove();
-    }, 600);
+let mobs = [];
+let drops = []; // Лут на земле
+
+// Цвета редкостей (Common, Unusual, Rare, Epic, Legendary)
+const rarityColors = ["#b0b0b0", "#55ff55", "#5555ff", "#aa00aa", "#ff8800"];
+const rarityNames = ["Basic", "Unusual", "Rare", "Epic", "Legendary"];
+
+// Спавн мобов со всех сторон
+function spawnMob() {
+    if (mobs.length < 8) {
+        let angle = Math.random() * Math.PI * 2;
+        let distance = Math.max(canvas.width, canvas.height) / 2 + 100;
+        mobs.push({
+            x: player.x + Math.cos(angle) * distance,
+            y: player.y + Math.sin(angle) * distance,
+            radius: 18,
+            hp: 25,
+            maxHp: 25,
+            speed: 1.2,
+            color: "#e74c3c"
+        });
+    }
 }
+setInterval(spawnMob, 2500);
 
-function buySkin(name, price, color) {
-    if (score >= price) {
-        score -= price;
-        document.getElementById("face-name").innerText = name;
-        document.getElementById("target-face").style.backgroundColor = color;
-        document.getElementById("target-face").style.boxShadow = `0 8px 25px ${color}`;
-        updateUI();
-    } else {
-        alert("Не хватает очков!");
+// Клик по луту на земле (чтобы подобрать)
+window.addEventListener('click', (e) => {
+    drops.forEach(drop => {
+        let dx = e.clientX - drop.x;
+        let dy = e.clientY - drop.y;
+        if (Math.sqrt(dx * dx + dy * dy) < drop.radius + 15) {
+            drop.collected = true;
+            // Добавляем в инвентарь
+            for (let i = 0; i < inventory.length; i++) {
+                if (inventory[i].rarity === drop.rarity || inventory[i].count === 0) {
+                    inventory[i].rarity = drop.rarity;
+                    inventory[i].name = rarityNames[drop.rarity];
+                    inventory[i].count += 1;
+                    break;
+                }
+            }
+            updateInventoryUI();
+        }
+    });
+});
+
+// Крафт стол (5 одинаковых -> 1 выше)
+window.craftPetal = function(index) {
+    let item = inventory[index];
+    if (item.count >= 5 && index < 4) {
+        item.count -= 5;
+        if (item.count === 0) item.name = "-";
+        
+        let nextIndex = index + 1;
+        inventory[nextIndex].rarity = item.rarity + 1;
+        inventory[nextIndex].name = rarityNames[item.rarity + 1];
+        inventory[nextIndex].count += 1;
+        
+        updateInventoryUI();
+    }
+};
+
+function updateInventoryUI() {
+    for (let i = 0; i < 5; i++) {
+        let item = inventory[i];
+        let countEl = document.getElementById(`count-${i}`);
+        let slotEl = document.getElementById("inventory").children[i];
+        
+        countEl.innerText = item.count > 0 ? item.count : "0";
+        slotEl.querySelector(".slot-name").innerText = item.count > 0 ? item.name : "-";
+        
+        if (item.count > 0) {
+            slotEl.style.borderColor = rarityColors[item.rarity];
+        } else {
+            slotEl.style.borderColor = "rgba(255, 255, 255, 0.3)";
+        }
     }
 }
 
-function upgradeClick() {
-    if (score >= upgradeCost) {
-        score -= upgradeCost;
-        clickPower += 1;
-        upgradeCost = Math.floor(upgradeCost * 1.5);
-        updateUI();
-    } else {
-        alert("Не хватает очков для улучшения!");
+function update() {
+    // Плавное движение игрока к мышке
+    let dx = mouse.x - player.x;
+    let dy = mouse.y - player.y;
+    let dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist > 1) {
+        player.x += (dx / dist) * Math.min(player.speed, dist);
+        player.y += (dy / dist) * Math.min(player.speed, dist);
     }
+
+    // Вращение лепестков
+    petals.forEach(p => p.angle += 0.04);
+
+    // Логика мобов
+    mobs.forEach(mob => {
+        let mdx = player.x - mob.x;
+        let mdy = player.y - mob.y;
+        let mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+        
+        if (mdist > 1) {
+            mob.x += (mdx / mdist) * mob.speed;
+            mob.y += (mdy / mdist) * mob.speed;
+        }
+
+        // Урон игроку при столкновении
+        if (mdist < player.radius + mob.radius) {
+            player.hp -= 0.4;
+            if (player.hp <= 0) {
+                alert("Игра окончена! Твой счет: " + player.score);
+                player.hp = 100;
+                player.score = 0;
+                mobs = [];
+                drops = [];
+            }
+        }
+
+        // Урон от лепестков игрока
+        petals.forEach(p => {
+            let px = player.x + Math.cos(p.angle) * p.distance;
+            let py = player.y + Math.sin(p.angle) * p.distance;
+            let pdx = mob.x - px;
+            let pdy = mob.y - py;
+            if (Math.sqrt(pdx * pdx + pdy * pdy) < p.radius + mob.radius) {
+                mob.hp -= 8;
+                if (mob.hp <= 0) {
+                    mob.dead = true;
+                }
+            }
+        });
+    });
+
+    // Обработка смерти мобов и выпадение лута по шансам (как в оригинале)
+    mobs.forEach(mob => {
+        if (mob.dead) {
+            player.score += 15;
+            
+            // Шансы выпадения редкостей (хардкорные, долгие)
+            let rand = Math.random() * 100;
+            let dropRarity = 0; // Common по умолчанию (80%)
+            if (rand > 80 && rand <= 95) dropRarity = 1; // Unusual (15%)
+            else if (rand > 95 && rand < 99) dropRarity = 2; // Rare (4%)
+            else if (rand >= 99) dropRarity = 3; // Epic (1%)
+
+            drops.push({
+                x: mob.x,
+                y: mob.y,
+                radius: 12,
+                rarity: dropRarity,
+                collected: false
+            });
+        }
+    });
+    mobs = mobs.filter(mob => !mob.dead);
+
+    // Удаляем подобранный лут
+    drops = drops.filter(drop => !drop.collected);
+
+    document.getElementById("score").innerText = player.score;
+    document.getElementById("hp").innerText = Math.max(0, Math.floor(player.hp));
 }
 
-function updateUI() {
-    document.getElementById("score").innerText = score;
-    document.getElementById("click-power").innerText = clickPower;
-    document.getElementById("upgrade-cost").innerText = upgradeCost;
-}
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Рисуем лут на земле (кликни на него чтобы подобрать)
+    drops.forEach(drop => {
+        ctx.fillStyle = rarityColors[drop.rarity];
+        ctx.beginPath();
+        ctx.arc(drop.x, drop.y, drop.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    });
+
+    // Рисуем мобов
+    mobs.forEach(mob => {
+        ctx.fillStyle = mob.color;
+        ctx.beginPath();
+        ctx.arc(mob.x, mob.y, mob.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Полоска здоровья моба
+        let barW = mob.radius * 2;
+        ctx.fillStyle = "rgba(0,0,0,0.5)";
+        ctx.fillRect(mob.x - barW / 2, mob.y - mob.radius - 10, barW, 4);
+        ctx.fillStyle = "#2ecc71";
+        ctx.fillRect(mob.x - barW / 2, mob.y - mob.radius - 10, barW * (mob.hp / mob.maxHp), 4);
+    });
+
+    // Рисуем игрока (лицо MN по центру)
+    ctx.fillStyle = "#ff3b3b";
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Глаза MN
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(player.x - 9, player.y - 4, 4, 0, Math.PI * 2);
+    ctx.arc(player.x + 9, player.y - 4, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Лепестки вокруг игрока
+    petals.forEach(p => {
+        let px = player.x + Math.cos(p.angle) * p.distance;
+        let py = player.y + Math.sin(p.angle) * p.distance;
+
+        ctx.fillStyle = rarityColors[p.rarity];
+        ctx.beginPath();
+        ctx.arc(px, py, p.radius, 0, Math.PI * 2);
+    ...
