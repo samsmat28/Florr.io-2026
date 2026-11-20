@@ -41,7 +41,7 @@ let inventory = [
 let mobs = [];
 let drops = [];
 
-// Спавн мобов из нашей базы данных (Garden)
+// Спавн мобов из базы данных (Garden)
 function spawnMob() {
     if (mobs.length < 7) {
         let templateList = MOBS_DATA.garden;
